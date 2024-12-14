@@ -1,49 +1,102 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../app/app_theme.dart';
+import '../services/report_service.dart';
+import '../models/report.dart';
 import './components/navigation_bar.dart';
 import './components/search_bar.dart';
 import './components/item_card.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final ReportService _reportService = ReportService();
+  List<Report> _foundReports = [];
+  List<Report> _lostReports = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchReports();
+  }
+
+  Future<void> _fetchReports() async {
+    try {
+      final foundReports = await _reportService.getFoundReports();
+      final lostReports = await _reportService.getLostReports();
+
+      setState(() {
+        _foundReports = foundReports;
+        _lostReports = lostReports;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load reports: $e')),
+      );
+    }
+  }
+
+  void _navigateToItemDetails(Report report) {
+    Navigator.pushNamed(context, '/itemdetails', arguments: {
+      'itemName': report.itemName,
+      'status': report.status,
+      'description': report.description,
+      'category': report.category,
+      'location': report.location,
+      'dateTime': DateFormat('dd/MM/yyyy').format(report.date),
+      'imageUrl': '', // Placeholder for image URL
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const MySearchBar(),
-                const SizedBox(height: 20),
-                _buildSection(
-                  context,
-                  title: 'Recently found items',
-                  onViewAll: () {
-                    // Navigate to Recently Found Items screen
-                    Navigator.pushNamed(context, '/items');
-                  },
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const MySearchBar(),
+                      const SizedBox(height: 20),
+                      _buildSection(
+                        context,
+                        title: 'Recently found items',
+                        onViewAll: () {
+                          Navigator.pushNamed(context, '/items',
+                              arguments: {'status': 'found'});
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      _buildGrid(_foundReports, 'Found'),
+                      const SizedBox(height: 20),
+                      _buildSection(
+                        context,
+                        title: 'Recently lost items',
+                        onViewAll: () {
+                          Navigator.pushNamed(context, '/items',
+                              arguments: {'status': 'lost'});
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      _buildGrid(_lostReports, 'Lost'),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 16),
-                _buildGrid(),
-                const SizedBox(height: 20),
-                _buildSection(
-                  context,
-                  title: 'Recently lost items',
-                  onViewAll: () {
-                    // Navigate to Recently Lost Items screen
-                    Navigator.pushNamed(context, '/items');
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildGrid(),
-              ],
-            ),
-          ),
-        ),
+              ),
       ),
       bottomNavigationBar: const MyNavigationBar(),
     );
@@ -63,7 +116,7 @@ class HomePage extends StatelessWidget {
               color: AppColors.text,
             ),
           ),
-          const SizedBox(width: 8), // Small margin between title and arrow
+          const SizedBox(width: 8),
           const Text(
             '>',
             style: TextStyle(
@@ -77,7 +130,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildGrid() {
+  Widget _buildGrid(List<Report> reports, String status) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -87,17 +140,16 @@ class HomePage extends StatelessWidget {
         crossAxisSpacing: 16,
         childAspectRatio: 3 / 4,
       ),
-      itemCount: 4, // Replace with the actual number of items
+      itemCount: reports.length,
       itemBuilder: (context, index) {
+        final report = reports[index];
         return GestureDetector(
-          onTap: () {
-            // Handle item card tap
-            Navigator.pushNamed(context, '/itemdetails');
-          },
-          child: const ItemCard(
-            imageUrl: 'https://via.placeholder.com/150',
-            title: 'Item Name',
-            date: 'dd/mm/yy',
+          onTap: () => _navigateToItemDetails(report),
+          child: ItemCard(
+            imageUrl: '', // Placeholder for image URL
+            title: report.itemName,
+            date: DateFormat('dd/MM/yyyy').format(report.date),
+            status: status,
           ),
         );
       },

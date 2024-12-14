@@ -51,12 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacementNamed(context, '/homepage');
       } on firebase_auth.FirebaseAuthException catch (e) {
         String errorMessage = 'Sign in failed';
-        if (e.code == 'user-not-found') {
-          errorMessage = 'No user found with this email';
-        } else if (e.code == 'wrong-password') {
-          errorMessage = 'Incorrect password';
-        } else if (e.code == 'invalid-email') {
-          errorMessage = 'Invalid email address';
+        if (e.code == 'invalid-credential') {
+          errorMessage = 'No user found with this email and password';
         }
         _showErrorDialog(errorMessage);
       } catch (e) {

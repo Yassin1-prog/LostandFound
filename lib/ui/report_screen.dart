@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../app/app_theme.dart'; // For custom colors and styles
+import 'package:firebase_auth/firebase_auth.dart';
+import '../app/app_theme.dart';
+import '../models/report.dart';
+import '../services/report_service.dart';
 
 class ReportFormScreen extends StatefulWidget {
   const ReportFormScreen({super.key});
@@ -11,6 +15,8 @@ class ReportFormScreen extends StatefulWidget {
 
 class _ReportFormScreenState extends State<ReportFormScreen> {
   final _formKey = GlobalKey<FormState>();
+  final ReportService _reportService = ReportService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // Form fields
   String? itemName;
@@ -18,7 +24,75 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
   String? category; // Dropdown value: 'Electronics', 'Books', 'Other'
   String? description;
   String? location;
-  DateTime? dateTime;
+  DateTime? date;
+  bool _isLoading = false;
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Okay'),
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> _submitReport() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        // Get current user's ID
+        final currentUser = _auth.currentUser;
+        if (currentUser == null) {
+          _showErrorDialog('User not logged in');
+          return;
+        }
+
+        // Create a new Report object
+        final newReport = Report(
+          id: FirebaseFirestore.instance
+              .collection('Report')
+              .doc()
+              .id, // Pre-generate ID,
+          userId: currentUser.uid,
+          itemName: itemName!,
+          status: lostOrFound!,
+          description: description!,
+          category: category!,
+          location: location!,
+          date: date!,
+        );
+
+        // Save the report to Firestore
+        await _reportService.addReport(newReport);
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Report submitted successfully')),
+        );
+
+        // Navigate back or to another screen
+        Navigator.pop(context);
+      } catch (e) {
+        _showErrorDialog('Failed to submit report: ${e.toString()}');
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +241,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                   TextFormField(
                     readOnly: true,
                     decoration: InputDecoration(
-                      labelText: 'Date and Time',
+                      labelText: 'Date',
                       filled: true,
                       fillColor: AppColors.background,
                       suffixIcon: const Icon(Icons.calendar_today,
@@ -177,65 +251,47 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                       ),
                     ),
                     onTap: () async {
-                      final date = await showDatePicker(
+                      final selectedDate = await showDatePicker(
                         context: context,
                         initialDate: DateTime.now(),
                         firstDate: DateTime(2000),
-                        lastDate: DateTime(2100),
+                        lastDate: DateTime.now(),
                       );
-                      if (date != null) {
-                        final time = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.now(),
-                        );
-                        if (time != null) {
-                          setState(() {
-                            dateTime = DateTime(
-                              date.year,
-                              date.month,
-                              date.day,
-                              time.hour,
-                              time.minute,
-                            );
-                          });
-                        }
+                      if (selectedDate != null) {
+                        setState(() {
+                          date = selectedDate;
+                        });
                       }
                     },
                     controller: TextEditingController(
-                      text: dateTime != null
-                          ? '${dateTime!.toLocal()}'.split(' ')[0]
+                      text: date != null
+                          ? '${date!.day.toString().padLeft(2, '0')}/${date!.month.toString().padLeft(2, '0')}/${date!.year}'
                           : '',
                     ),
                     validator: (value) =>
-                        dateTime == null ? 'Please select date and time' : null,
+                        date == null ? 'Please select a date' : null,
                   ),
                   const SizedBox(height: 24),
 
                   // Submit Button
                   Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 32, vertical: 16),
-                      ),
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
-                          // Handle form submission
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Form submitted')),
-                          );
-                        }
-                      },
-                      child: const Text(
-                        'Submit',
-                        style: TextStyle(color: AppColors.buttonText),
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator()
+                        : ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 32, vertical: 16),
+                            ),
+                            onPressed: _submitReport,
+                            child: const Text(
+                              'Submit',
+                              style: TextStyle(color: AppColors.buttonText),
+                            ),
+                          ),
                   ),
                 ],
               ),

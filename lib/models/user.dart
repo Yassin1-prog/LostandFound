@@ -19,6 +19,26 @@ class User {
     this.xp = 0,
   });
 
+  User copyWith({
+    String? id,
+    String? username,
+    String? email,
+    String? password,
+    String? phoneNumber,
+    String? about,
+    int? xp,
+  }) {
+    return User(
+      id: id ?? this.id,
+      username: username ?? this.username,
+      email: email ?? this.email,
+      password: password ?? this.password,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      about: about ?? this.about,
+      xp: xp ?? this.xp,
+    );
+  }
+
 // returns valid format that can be stored on firestore
   Map<String, dynamic> toMap() {
     return {

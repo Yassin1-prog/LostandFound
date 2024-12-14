@@ -1,72 +1,170 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../app/app_theme.dart';
+import '../services/report_service.dart';
+import '../models/report.dart';
 import './components/navigation_bar.dart';
 import './components/search_bar.dart';
 import './components/item_card.dart';
 
-class ItemsPage extends StatelessWidget {
-  final List<Map<String, String>> searchResults; // Mock data for results
+class ItemsPage extends StatefulWidget {
+  final String? initialStatus; // Optional parameter to specify lost or found
+  final List<Report>? searchResults; // Optional parameter for search results
 
-  const ItemsPage({
-    super.key,
-    required this.searchResults,
-  });
+  const ItemsPage({super.key, this.initialStatus, this.searchResults});
+
+  @override
+  State<ItemsPage> createState() => _ItemsPageState();
+}
+
+class _ItemsPageState extends State<ItemsPage> {
+  final ReportService _reportService = ReportService();
+  List<Report> _reports = [];
+  bool _isLoading = true;
+  String? _currentStatus;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentStatus = widget.initialStatus;
+
+    // If search results are provided, use them
+    if (widget.searchResults != null && widget.searchResults!.isNotEmpty) {
+      setState(() {
+        _reports = widget.searchResults!;
+        _isLoading = false;
+      });
+    } else {
+      // Otherwise, fetch reports based on the initial status
+      _fetchReports();
+    }
+  }
+
+  Future<void> _fetchReports() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      List<Report> fetchedReports;
+      final currentUser = firebase_auth.FirebaseAuth.instance.currentUser;
+
+      if (_currentStatus?.toLowerCase() == 'found') {
+        fetchedReports = await _reportService.getFoundReports();
+      } else if (_currentStatus?.toLowerCase() == 'lost') {
+        fetchedReports = await _reportService.getLostReports();
+      } else if (_currentStatus?.toLowerCase() == 'user' &&
+          currentUser != null) {
+        fetchedReports = await _reportService.getReportsByUser(currentUser.uid);
+      } else {
+        fetchedReports = await _reportService.getReports();
+      }
+
+      setState(() {
+        _reports = fetchedReports;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load reports: $e'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  void _navigateToItemDetails(Report report) {
+    Navigator.pushNamed(context, '/itemdetails', arguments: {
+      'itemName': report.itemName,
+      'status': report.status,
+      'description': report.description,
+      'category': report.category,
+      'location': report.location,
+      'dateTime': DateFormat('yyyy-MM-dd HH:mm').format(report.date),
+      'imageUrl': '', // Placeholder for image URL
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Search Bar
             const Padding(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.all(16.0),
               child: MySearchBar(),
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildSearchResults(),
+
+            // Title and Count
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _currentStatus != null
+                        ? '${_currentStatus!.toUpperCase()} Items'
+                        : 'All Items',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.text,
+                    ),
+                  ),
+                  Text(
+                    '${_reports.length} Items',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: AppColors.accent,
+                    ),
+                  ),
+                ],
               ),
+            ),
+
+            // Loading or Items Grid
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _reports.isEmpty
+                      ? const Center(child: Text('No items found'))
+                      : GridView.builder(
+                          padding: const EdgeInsets.all(16),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 16,
+                            crossAxisSpacing: 16,
+                            childAspectRatio: 3 / 4,
+                          ),
+                          itemCount: _reports.length,
+                          itemBuilder: (context, index) {
+                            final report = _reports[index];
+                            return GestureDetector(
+                              onTap: () => _navigateToItemDetails(report),
+                              child: ItemCard(
+                                imageUrl: '', // Placeholder for image URL
+                                title: report.itemName,
+                                date: DateFormat('yyyy-MM-dd')
+                                    .format(report.date),
+                                status: report.status,
+                              ),
+                            );
+                          },
+                        ),
             ),
           ],
         ),
       ),
+      // Navigation Bar at the bottom
       bottomNavigationBar: const MyNavigationBar(),
-    );
-  }
-
-  Widget _buildSearchResults() {
-    if (searchResults.isEmpty) {
-      return const Center(
-        child: Text(
-          'No results found',
-          style: TextStyle(
-            fontSize: 16,
-            color: AppColors.text,
-          ),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      itemCount: searchResults.length,
-      itemBuilder: (context, index) {
-        final result = searchResults[index];
-        return GestureDetector(
-          onTap: () {
-            // Handle tap action (e.g., navigate to details page)
-          },
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: ItemCard(
-              imageUrl: result['imageUrl'] ?? 'https://via.placeholder.com/150',
-              title: result['title'] ?? 'Item Name',
-              date: result['date'] ?? 'dd/mm/yy',
-            ),
-          ),
-        );
-      },
     );
   }
 }

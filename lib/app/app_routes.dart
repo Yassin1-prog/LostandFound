@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/report.dart';
 import '../ui/welcome_screen.dart';
 import '../ui/register_screen.dart';
 import '../ui/login_screen.dart';
@@ -29,21 +30,50 @@ class AppRoutes {
       case homepage:
         return MaterialPageRoute(builder: (_) => const HomePage());
       case items:
+        if (settings.arguments is Map<String, dynamic>) {
+          final args = settings.arguments as Map<String, dynamic>;
+          return MaterialPageRoute(
+            builder: (_) => ItemsPage(
+              initialStatus: args['status'] as String?,
+              searchResults: args['searchResults'] as List<Report>?,
+            ),
+          );
+        }
         return MaterialPageRoute(
-            builder: (_) => const ItemsPage(searchResults: []));
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Page not found')),
+          ),
+        );
       case report:
         return MaterialPageRoute(builder: (_) => const ReportFormScreen());
       case details:
+        // Check if arguments are passed and are of the correct type
+        if (settings.arguments is Map<String, dynamic>) {
+          final args = settings.arguments as Map<String, dynamic>;
+          return MaterialPageRoute(
+            builder: (_) => ItemDetails(
+              itemName: args['itemName'] ?? '',
+              status: args['status'] ?? '',
+              description: args['description'] ?? '',
+              category: args['category'] ?? '',
+              location: args['location'] ?? '',
+              dateTime: args['dateTime'] ?? '',
+              imageUrl: args['imageUrl'] ?? '',
+            ),
+          );
+        }
+        // Fallback to a default ItemDetails if no arguments are provided
         return MaterialPageRoute(
-            builder: (_) => const ItemDetails(
-                  itemName: "kgj",
-                  status: "dgfdg",
-                  description: "dgfdhf",
-                  category: "dgfdg",
-                  location: "z",
-                  dateTime: "sfsdf",
-                  imageUrl: "sfsdfdfv",
-                ));
+          builder: (_) => const ItemDetails(
+            itemName: "Unknown Item",
+            status: "Unknown Status",
+            description: "No description available",
+            category: "Uncategorized",
+            location: "Unknown",
+            dateTime: "",
+            imageUrl: "",
+          ),
+        );
       case profile:
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
       default:

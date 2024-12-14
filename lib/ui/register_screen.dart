@@ -75,9 +75,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           return;
         }
 
-        print(_emailController.text.trim());
-        print(_passwordController.text.trim());
-
         // Create user in Firebase Authentication
         final userCredential = await _auth.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),

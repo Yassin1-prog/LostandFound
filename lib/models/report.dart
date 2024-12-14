@@ -1,36 +1,61 @@
 // models/report.dart
-/*
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class Report {
-  final String username;
+  final String id;
+  final String userId;
   final String itemName;
   final String status; // "lost" or "found"
   final String description;
   final String category; // e.g., "electronics", "clothing", etc.
   final String location;
-  final DateTime dateTime;
+  final DateTime date;
 
   Report({
-    required this.username,
+    required this.id,
+    required this.userId,
     required this.itemName,
     required this.status,
     required this.description,
     required this.category,
     required this.location,
-    required this.dateTime,
+    required this.date,
   });
+
+  Report copyWith({
+    String? id,
+    String? userId,
+    String? itemName,
+    String? status,
+    String? description,
+    String? category,
+    String? location,
+    DateTime? date,
+  }) {
+    return Report(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      itemName: itemName ?? this.itemName,
+      status: status ?? this.status,
+      description: description ?? this.description,
+      category: category ?? this.category,
+      location: location ?? this.location,
+      date: date ?? this.date,
+    );
+  }
 
   // Convert Report object to Firestore-compatible map
   Map<String, dynamic> toMap() {
     return {
-      'username': username,
+      'id': id,
+      'userId': userId,
       'itemName': itemName,
       'status': status,
       'description': description,
       'category': category,
       'location': location,
-      'dateTime': dateTime.toIso8601String(),
+      'date': DateFormat('dd/MM/yyyy').format(date),
     };
   }
 
@@ -38,15 +63,15 @@ class Report {
   factory Report.fromDocument(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return Report(
-      username: data['username'] ?? '',
+      id: data['id'] ?? '',
+      userId: data['userId'] ?? '',
       itemName: data['itemName'] ?? '',
-      status: data['status'] ?? 'lost',
+      status: data['status'] ?? 'Lost',
       description: data['description'] ?? '',
       category: data['category'] ?? '',
       location: data['location'] ?? '',
-      dateTime:
-          DateTime.parse(data['dateTime'] ?? DateTime.now().toIso8601String()),
+      date: DateTime.parse(
+          data['date'] ?? DateFormat('dd/MM/yyyy').format(DateTime.now())),
     );
   }
 }
-*/
