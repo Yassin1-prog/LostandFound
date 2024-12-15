@@ -35,6 +35,7 @@ class AppRoutes {
           return MaterialPageRoute(
             builder: (_) => ItemsPage(
               initialStatus: args['status'] as String?,
+              initialCategory: args['category'] as String?,
               searchResults: args['searchResults'] as List<Report>?,
             ),
           );

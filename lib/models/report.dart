@@ -55,7 +55,7 @@ class Report {
       'description': description,
       'category': category,
       'location': location,
-      'date': DateFormat('dd/MM/yyyy').format(date),
+      'date': date.toIso8601String(),
     };
   }
 
