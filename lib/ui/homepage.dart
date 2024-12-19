@@ -146,7 +146,7 @@ class _HomePageState extends State<HomePage> {
         return GestureDetector(
           onTap: () => _navigateToItemDetails(report),
           child: ItemCard(
-            imageUrl: '', // Placeholder for image URL
+            imageUrl: report.imageUrl, // Placeholder for image URL
             title: report.itemName,
             date: DateFormat('dd/MM/yyyy').format(report.date),
             status: status,

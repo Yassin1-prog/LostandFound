@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../app/app_theme.dart';
 import '../models/report.dart';
 import '../services/report_service.dart';
+import 'package:image_picker/image_picker.dart';
+import '../services/image_service.dart';
 
 class ReportFormScreen extends StatefulWidget {
   const ReportFormScreen({super.key});
@@ -17,6 +21,9 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final ReportService _reportService = ReportService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final ImageService _imageService = ImageService();
+  XFile? _imageFile;
+  //String? _imageUrl;
 
   // Form fields
   String? itemName;
@@ -43,6 +50,15 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
     );
   }
 
+  Future<void> _takePhoto() async {
+    final photo = await _imageService.takePhoto();
+    if (photo != null) {
+      setState(() {
+        _imageFile = photo;
+      });
+    }
+  }
+
   Future<void> _submitReport() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -59,6 +75,18 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
           return;
         }
 
+        String imageUrl = '';
+        if (_imageFile != null) {
+          final uploadedImageUrl =
+              await _imageService.uploadImage(_imageFile!, currentUser.uid);
+          if (uploadedImageUrl != null) {
+            imageUrl = uploadedImageUrl;
+          } else {
+            _showErrorDialog('Failed to upload image');
+            return;
+          }
+        }
+
         // Create a new Report object
         final newReport = Report(
           id: FirebaseFirestore.instance
@@ -72,6 +100,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
           category: category!,
           location: location!,
           date: date!,
+          imageUrl: imageUrl,
         );
 
         // Save the report to Firestore
@@ -119,9 +148,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                 children: [
                   // Image Upload Placeholder
                   GestureDetector(
-                    onTap: () {
-                      // Handle image upload
-                    },
+                    onTap: _takePhoto,
                     child: Container(
                       height: 150,
                       decoration: BoxDecoration(
@@ -129,10 +156,28 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: AppColors.primary),
                       ),
-                      child: const Center(
-                        child: Icon(Icons.image,
-                            size: 48, color: AppColors.primary),
-                      ),
+                      child: _imageFile != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(
+                                File(_imageFile!.path),
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                              ),
+                            )
+                          : const Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.camera_alt,
+                                      size: 48, color: AppColors.primary),
+                                  SizedBox(height: 8),
+                                  Text('Take Photo',
+                                      style:
+                                          TextStyle(color: AppColors.primary)),
+                                ],
+                              ),
+                            ),
                     ),
                   ),
                   const SizedBox(height: 16),

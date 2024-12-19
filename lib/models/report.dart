@@ -6,11 +6,12 @@ class Report {
   final String id;
   final String userId;
   final String itemName;
-  final String status; // "lost" or "found"
+  final String status;
   final String description;
-  final String category; // e.g., "electronics", "clothing", etc.
+  final String category;
   final String location;
   final DateTime date;
+  final String imageUrl;
 
   Report({
     required this.id,
@@ -21,6 +22,7 @@ class Report {
     required this.category,
     required this.location,
     required this.date,
+    required this.imageUrl,
   });
 
   Report copyWith({
@@ -32,6 +34,7 @@ class Report {
     String? category,
     String? location,
     DateTime? date,
+    String? imageUrl,
   }) {
     return Report(
       id: id ?? this.id,
@@ -42,10 +45,10 @@ class Report {
       category: category ?? this.category,
       location: location ?? this.location,
       date: date ?? this.date,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 
-  // Convert Report object to Firestore-compatible map
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -56,10 +59,10 @@ class Report {
       'category': category,
       'location': location,
       'date': date.toIso8601String(),
+      'imageUrl': imageUrl,
     };
   }
 
-  // Create a Report object from Firestore document
   factory Report.fromDocument(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return Report(
@@ -72,6 +75,7 @@ class Report {
       location: data['location'] ?? '',
       date: DateTime.parse(
           data['date'] ?? DateFormat('dd/MM/yyyy').format(DateTime.now())),
+      imageUrl: data['imageUrl'] ?? '',
     );
   }
 }

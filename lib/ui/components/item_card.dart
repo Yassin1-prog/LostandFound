@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../app/app_theme.dart';
 
 class ItemCard extends StatelessWidget {
   final String imageUrl;
   final String title;
   final String date;
-  final String status; // New parameter for lost/found status
+  final String status;
 
   const ItemCard({
     super.key,
@@ -33,12 +34,33 @@ class ItemCard extends StatelessWidget {
                   topLeft: Radius.circular(12),
                   topRight: Radius.circular(12),
                 ),
-                child: Image.network(
-                  imageUrl,
-                  height: 100,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+                child: imageUrl.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        height: 100,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        httpHeaders: const {
+                          // Add any required Appwrite headers if needed
+                        },
+                        placeholder: (context, url) => Container(
+                          height: 100,
+                          color: Colors.grey[300],
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          height: 100,
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.error),
+                        ),
+                      )
+                    : Container(
+                        height: 100,
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image_not_supported),
+                      ),
               ),
               Positioned(
                 top: 8,

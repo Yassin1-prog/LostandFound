@@ -319,7 +319,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: SizedBox(
                 width: 200, // Fixed width for each item
                 child: ItemCard(
-                  imageUrl: '', // Placeholder for image URL
+                  imageUrl: report.imageUrl, // Placeholder for image URL
                   title: report.itemName,
                   date: DateFormat('dd/MM/yyyy').format(report.date),
                   status: report.status,
