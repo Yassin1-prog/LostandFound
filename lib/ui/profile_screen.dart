@@ -51,6 +51,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  String _getRank(int xp) {
+    if (xp >= 1001) return 'Recovery Legend';
+    if (xp >= 601) return 'Master Returner';
+    if (xp >= 301) return 'Expert Locator';
+    if (xp >= 101) return 'Community Helper';
+    return 'Novice Finder';
+  }
+
+  int _getMaxXP(int xp) {
+    if (xp >= 1001) return 2000; // Can adjust this cap
+    if (xp >= 601) return 1000;
+    if (xp >= 301) return 600;
+    if (xp >= 101) return 300;
+    return 100;
+  }
+
+  Color _getRankColor(int xp) {
+    if (xp >= 1001) return const Color(0xFF6C63FF); // Purple
+    if (xp >= 601) return const Color(0xFF4CAF50); // Green
+    if (xp >= 301) return const Color(0xFF2196F3); // Blue
+    if (xp >= 101) return const Color(0xFFFFA726); // Orange
+    return const Color(0xFF78909C); // Blue Grey
+  }
+
   void _navigateToItemDetails(Report report) {
     Navigator.pushNamed(context, '/itemdetails', arguments: {
       'itemName': report.itemName,
@@ -60,6 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'location': report.location,
       'dateTime': DateFormat('dd/MM/yyyy').format(report.date),
       'imageUrl': report.imageUrl, // Placeholder for image URL
+      'userId': report.userId,
     });
   }
 
@@ -152,12 +177,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
+        bottomNavigationBar: MyNavigationBar(),
       );
     }
 
     if (_currentUser == null) {
       return const Scaffold(
         body: Center(child: Text('Failed to load user data')),
+        bottomNavigationBar: MyNavigationBar(),
       );
     }
 
@@ -180,20 +207,134 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Center(
-                  child: CircleAvatar(
-                    radius: 40,
-                    backgroundColor: AppColors.primary,
-                    child: Icon(
-                      Icons.person,
-                      color: AppColors.buttonText,
-                      size: 40,
-                    ),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          // Profile Avatar with Rank Border
+                          Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: _getRankColor(_currentUser!.xp),
+                                width: 2,
+                              ),
+                            ),
+                            child: const CircleAvatar(
+                              radius: 45,
+                              backgroundColor: AppColors.primary,
+                              child: Icon(
+                                Icons.person,
+                                color: AppColors.buttonText,
+                                size: 50,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+
+                          // Username and Rank
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _currentUser!.username,
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.text,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _getRankColor(_currentUser!.xp)
+                                        .withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: _getRankColor(_currentUser!.xp)
+                                          .withOpacity(0.5),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    _getRank(_currentUser!.xp),
+                                    style: TextStyle(
+                                      color: _getRankColor(_currentUser!.xp),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+
+                      // XP Progress Bar
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Experience Points',
+                                style: TextStyle(
+                                  color: AppColors.text.withOpacity(0.7),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Text(
+                                '${_currentUser!.xp} / ${_getMaxXP(_currentUser!.xp)} XP',
+                                style: TextStyle(
+                                  color: _getRankColor(_currentUser!.xp),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: LinearProgressIndicator(
+                              value: _currentUser!.xp /
+                                  _getMaxXP(_currentUser!.xp),
+                              backgroundColor: _getRankColor(_currentUser!.xp)
+                                  .withOpacity(0.2),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  _getRankColor(_currentUser!.xp)),
+                              minHeight: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                _buildProfileInfoRow('Username', _currentUser!.username),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
                 _buildProfileInfoRow(
                   'Email',
                   _currentUser!.email,
@@ -235,20 +376,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'Player Rank',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.text,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                LinearProgressIndicator(
-                  value: _currentUser!.xp / 100, // Assuming max XP is 100
-                  color: AppColors.background,
-                  backgroundColor: AppColors.primary,
-                ),
-                const SizedBox(height: 8),
                 _buildSection(
                   context,
                   title: 'My Reports',
@@ -258,7 +385,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         arguments: {'status': 'user'});
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
                 _buildRow(_myReports),
               ],
             ),

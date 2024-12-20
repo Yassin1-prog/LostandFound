@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../app/app_theme.dart';
 import '../models/report.dart';
 import '../services/report_service.dart';
+import '../services/user_service.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/image_service.dart';
 
@@ -20,6 +21,7 @@ class ReportFormScreen extends StatefulWidget {
 class _ReportFormScreenState extends State<ReportFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final ReportService _reportService = ReportService();
+  final UserService _userService = UserService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final ImageService _imageService = ImageService();
   XFile? _imageFile;
@@ -105,6 +107,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
 
         // Save the report to Firestore
         await _reportService.addReport(newReport);
+        await _userService.increaseUserXP(currentUser.uid);
 
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(

@@ -60,6 +60,7 @@ class AppRoutes {
               location: args['location'] ?? '',
               dateTime: args['dateTime'] ?? '',
               imageUrl: args['imageUrl'] ?? '',
+              userId: args['userId'] ?? '',
             ),
           );
         }
@@ -73,6 +74,7 @@ class AppRoutes {
             location: "Unknown",
             dateTime: "",
             imageUrl: "",
+            userId: "",
           ),
         );
       case profile:

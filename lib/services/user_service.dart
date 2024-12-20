@@ -42,14 +42,14 @@ class UserService {
   }
 
   // Increment User XP
-  Future<void> incrementUserXP(String userId, int xpPoints) async {
+  Future<void> increaseUserXP(String userId) async {
     try {
       await _firestore
           .collection('User')
           .doc(userId)
-          .update({'xp': FieldValue.increment(xpPoints)});
+          .update({'xp': FieldValue.increment(50)});
     } catch (e) {
-      print('Error incrementing XP: $e');
+      print('Error increasing XP by 50: $e');
       rethrow;
     }
   }

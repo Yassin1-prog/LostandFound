@@ -55,6 +55,7 @@ class _HomePageState extends State<HomePage> {
       'location': report.location,
       'dateTime': DateFormat('dd/MM/yyyy').format(report.date),
       'imageUrl': report.imageUrl, // Placeholder for image URL
+      'userId': report.userId,
     });
   }
 
