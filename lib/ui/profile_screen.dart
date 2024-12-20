@@ -177,14 +177,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
-        bottomNavigationBar: MyNavigationBar(),
+        bottomNavigationBar: MyNavigationBar(currentIndex: 3),
       );
     }
 
     if (_currentUser == null) {
       return const Scaffold(
         body: Center(child: Text('Failed to load user data')),
-        bottomNavigationBar: MyNavigationBar(),
+        bottomNavigationBar: MyNavigationBar(currentIndex: 3),
       );
     }
 
@@ -392,7 +392,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: const MyNavigationBar(),
+      bottomNavigationBar: const MyNavigationBar(currentIndex: 3),
     );
   }
 

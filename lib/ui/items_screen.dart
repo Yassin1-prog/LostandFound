@@ -191,7 +191,7 @@ class _ItemsPageState extends State<ItemsPage> {
         ),
       ),
       // Navigation Bar at the bottom
-      bottomNavigationBar: const MyNavigationBar(),
+      bottomNavigationBar: const MyNavigationBar(currentIndex: 2),
     );
   }
 }

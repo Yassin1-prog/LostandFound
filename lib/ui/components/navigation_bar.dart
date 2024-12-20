@@ -2,65 +2,29 @@ import 'package:flutter/material.dart';
 import '../../app/app_routes.dart';
 import '../../app/app_theme.dart';
 
-class MyNavigationBar extends StatefulWidget {
-  const MyNavigationBar({super.key});
+class MyNavigationBar extends StatelessWidget {
+  final int currentIndex;
 
-  @override
-  State<MyNavigationBar> createState() => _MyNavigationBarState();
-}
+  const MyNavigationBar({
+    super.key,
+    required this.currentIndex,
+  });
 
-class _MyNavigationBarState extends State<MyNavigationBar> {
-  int _currentIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    // Set initial index based on current route
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _updateIndexFromRoute();
-    });
-  }
-
-  void _updateIndexFromRoute() {
-    final currentRoute = ModalRoute.of(context)?.settings.name;
-    setState(() {
-      _currentIndex = switch (currentRoute) {
-        AppRoutes.homepage => 0,
-        AppRoutes.report => 2,
-        AppRoutes.profile => 3,
-        _ => _currentIndex,
-      };
-    });
-  }
-
-  void _onItemTapped(int index) {
-    if (_currentIndex == index) return; // Prevent redundant navigation
-
-    setState(() {
-      _currentIndex = index;
-    });
-
+  void _onItemTapped(BuildContext context, int index) {
     switch (index) {
       case 0:
-        Navigator.pushNamed(context, AppRoutes.homepage)
-            .then((_) => _updateIndexFromRoute());
+        Navigator.pushNamed(context, AppRoutes.homepage);
         break;
       case 1:
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Messages feature coming soon')),
         );
-        // Reset index if we're not actually navigating
-        setState(() {
-          _currentIndex = _currentIndex;
-        });
         break;
       case 2:
-        Navigator.pushNamed(context, AppRoutes.report)
-            .then((_) => _updateIndexFromRoute());
+        Navigator.pushNamed(context, AppRoutes.report);
         break;
       case 3:
-        Navigator.pushNamed(context, AppRoutes.profile)
-            .then((_) => _updateIndexFromRoute());
+        Navigator.pushNamed(context, AppRoutes.profile);
         break;
     }
   }
@@ -68,7 +32,7 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      currentIndex: _currentIndex, // Highlight the selected tab
+      currentIndex: currentIndex,
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
@@ -87,11 +51,13 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
           label: 'Profile',
         ),
       ],
-      selectedItemColor: AppColors.buttonText,
+      selectedItemColor: currentIndex == 2
+          ? AppColors.buttonText.withOpacity(0.6) // All items unselected
+          : AppColors.buttonText,
       unselectedItemColor: AppColors.buttonText.withOpacity(0.6),
       backgroundColor: AppColors.primary,
       type: BottomNavigationBarType.fixed,
-      onTap: _onItemTapped,
+      onTap: (index) => _onItemTapped(context, index),
     );
   }
 }
