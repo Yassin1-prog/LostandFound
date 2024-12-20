@@ -65,11 +65,26 @@ class ItemDetails extends StatelessWidget {
                             width: double.infinity,
                           ),
                         )
-                      : const Center(
-                          child: Icon(
-                            Icons.image,
-                            size: 48,
-                            color: AppColors.primary,
+                      : Container(
+                          width: double.infinity,
+                          color: Colors.grey[100],
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.image_not_supported,
+                                color: Colors.grey,
+                                size: 32,
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'No image available',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                 ),

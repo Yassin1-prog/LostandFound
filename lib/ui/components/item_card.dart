@@ -22,10 +22,12 @@ class ItemCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      elevation: 4,
+      elevation: 2,
       color: AppColors.background2,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize:
+            MainAxisSize.min, // Ensures card takes minimum required space
         children: [
           Stack(
             children: [
@@ -37,30 +39,17 @@ class ItemCard extends StatelessWidget {
                 child: imageUrl.isNotEmpty
                     ? CachedNetworkImage(
                         imageUrl: imageUrl,
-                        height: 100,
+                        height: 140, // Increased height
                         width: double.infinity,
                         fit: BoxFit.cover,
                         httpHeaders: const {
                           // Add any required Appwrite headers if needed
                         },
-                        placeholder: (context, url) => Container(
-                          height: 100,
-                          color: Colors.grey[300],
-                          child: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Container(
-                          height: 100,
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.error),
-                        ),
+                        placeholder: (context, url) => _buildPlaceholder(),
+                        errorWidget: (context, url, error) =>
+                            _buildErrorWidget(),
                       )
-                    : Container(
-                        height: 100,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image_not_supported),
-                      ),
+                    : _buildNoImageWidget(),
               ),
               Positioned(
                 top: 8,
@@ -70,9 +59,16 @@ class ItemCard extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: status.toLowerCase() == 'lost'
-                        ? Colors.red.withOpacity(0.8)
-                        : Colors.green.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(4),
+                        ? Colors.red.withOpacity(0.9)
+                        : Colors.green.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(6),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Text(
                     status.toUpperCase(),
@@ -87,23 +83,26 @@ class ItemCard extends StatelessWidget {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(12.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: AppColors.text,
+                    height: 1.2,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 4), // Original spacing restored
                 Text(
                   date,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     color: AppColors.accent,
                   ),
                 ),
@@ -111,6 +110,73 @@ class ItemCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    return SizedBox(
+      height: 140,
+      width: double.infinity,
+      child: Container(
+        color: Colors.grey[200],
+        child: const Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    return SizedBox(
+      height: 140,
+      width: double.infinity,
+      child: Container(
+        color: Colors.grey[200],
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, color: Colors.grey, size: 32),
+            SizedBox(height: 4),
+            Text(
+              'Error loading image',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoImageWidget() {
+    return SizedBox(
+      height: 140,
+      width: double.infinity,
+      child: Container(
+        color: Colors.grey[100],
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.image_not_supported,
+              color: Colors.grey,
+              size: 32,
+            ),
+            SizedBox(height: 4),
+            Text(
+              'No image available',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -30,25 +30,34 @@ class ImageService {
       final String fileName =
           '${userId}_${DateTime.now().millisecondsSinceEpoch}${path.extension(imageFile.path)}';
 
-      const List<String> permissions = ['read("any")', 'write("any")'];
+      String curfileid = ID.unique();
 
-      print('Attempting to upload file from path: ${imageFile.path}');
-      final bytes = await imageFile.readAsBytes();
-
-      // Upload file to Appwrite Storage using InputFile.fromPath
-      final uploadedFile = await _storage.createFile(
-        bucketId: AppwriteConstants.bucketId, // Replace with your bucket ID
-        fileId: ID.unique(), // Generate a unique file ID
-        file: InputFile.fromBytes(
-          bytes: bytes, // Correctly pass the file path
-          filename: fileName, // Set the file name
-        ),
-        permissions: permissions,
-      );
+      await Future.sync(() async {
+        try {
+          await _storage.createFile(
+            bucketId: AppwriteConstants.bucketId,
+            fileId: curfileid,
+            file: InputFile.fromPath(
+              path: imageFile.path,
+              filename: fileName,
+            ),
+          );
+        } catch (e) {
+          // If the error is the type conversion issue we know about,
+          // we can safely ignore it since the upload succeeded
+          if (e.toString().contains(
+              "type 'List<dynamic>' is not a subtype of type 'List<String>'")) {
+            // Continue execution
+            return;
+          }
+          // Rethrow any other errors
+          rethrow;
+        }
+      });
 
       // Construct the public URL to access the uploaded file
       final String fileUrl =
-          'https://cloud.appwrite.io/v1/storage/buckets/${AppwriteConstants.bucketId}/files/${uploadedFile.$id}/view?project=${AppwriteConstants.projectId}';
+          'https://cloud.appwrite.io/v1/storage/buckets/${AppwriteConstants.bucketId}/files/$curfileid/view?project=${AppwriteConstants.projectId}';
 
       print('File uploaded successfully. URL: $fileUrl');
       return fileUrl;

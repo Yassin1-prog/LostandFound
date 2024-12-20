@@ -59,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'category': report.category,
       'location': report.location,
       'dateTime': DateFormat('dd/MM/yyyy').format(report.date),
-      'imageUrl': '', // Placeholder for image URL
+      'imageUrl': report.imageUrl, // Placeholder for image URL
     });
   }
 
