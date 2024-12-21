@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/user_service.dart';
 import '../app/app_theme.dart';
+import '../ui/chat_screen.dart';
 
 class ItemDetails extends StatefulWidget {
   final String itemName;
@@ -218,7 +219,12 @@ class _ItemDetailsState extends State<ItemDetails> {
                     ),
                     ElevatedButton.icon(
                       onPressed: () {
-                        // Add message functionality
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatScreen(recipientId: widget.userId),
+                          ),
+                        );
                       },
                       icon: const Icon(Icons.message),
                       label: const Text('Message'),
@@ -234,6 +240,7 @@ class _ItemDetailsState extends State<ItemDetails> {
                         ),
                       ),
                     ),
+
                   ],
                 ),
               ],

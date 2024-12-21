@@ -16,9 +16,7 @@ class MyNavigationBar extends StatelessWidget {
         Navigator.pushNamed(context, AppRoutes.homepage);
         break;
       case 1:
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Messages feature coming soon')),
-        );
+        Navigator.pushNamed(context, AppRoutes.messages);
         break;
       case 2:
         Navigator.pushNamed(context, AppRoutes.report);
