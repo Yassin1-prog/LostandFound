@@ -19,6 +19,27 @@ class _ChatScreenState extends State<ChatScreen> {
 
   static const int _maxMessageLength = 200;
 
+  String? recipientUsername;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRecipientData();
+  }
+
+  Future<void> _fetchRecipientData() async {
+    try {
+      final userDoc = await _firestore.collection('User').doc(widget.recipientId).get();
+      if (userDoc.exists) {
+        setState(() {
+          recipientUsername = userDoc.data()?['username'] ?? 'Unknown';
+        });
+      }
+    } catch (e) {
+      print('Error fetching recipient data: $e');
+    }
+  }
+
   void _sendMessage() async {
     final message = _messageController.text.trim();
 
@@ -75,9 +96,37 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat with ${widget.recipientId}'),
         backgroundColor: AppColors.primary,
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                color: AppColors.accent, // Contrasting color for the circle
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.person,
+                color: Colors.white, // Icon color
+              ),
+            ),
+            const SizedBox(width: 14), // Reduced spacing between the icon and text
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft, // Aligns the username to the left
+                child: Text(
+                  recipientUsername ?? 'Loading...',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+
       ),
+
       body: Column(
         children: [
           Expanded(
@@ -114,8 +163,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             isMe ? Alignment.centerRight : Alignment.centerLeft,
                         child: Container(
                           constraints: BoxConstraints(
-                              maxWidth:
-                                  MediaQuery.of(context).size.width * 0.6),
+                              maxWidth: MediaQuery.of(context).size.width * 0.6),
                           margin: const EdgeInsets.symmetric(
                               vertical: 4, horizontal: 8),
                           padding: const EdgeInsets.all(12),

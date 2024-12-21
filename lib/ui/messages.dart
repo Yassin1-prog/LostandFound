@@ -63,8 +63,7 @@ class _MessagesPageState extends State<MessagesPage> {
             itemBuilder: (context, index) {
               final conversation = conversations[index];
               final participants = conversation['participants'] as List;
-              final lastMessage =
-                  conversation['lastMessage'] ?? 'No messages yet';
+              final lastMessage = conversation['lastMessage'] ?? 'No messages yet';
               final recipientId = participants.firstWhere(
                 (id) => id != currentUser.uid,
                 orElse: () => null,
@@ -80,7 +79,18 @@ class _MessagesPageState extends State<MessagesPage> {
                   final username = snapshot.data ?? 'Loading...';
 
                   return ListTile(
-                    leading: const Icon(Icons.person, color: AppColors.primary),
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: AppColors.accent, // Contrasting color for the circle
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.person,
+                        color: Colors.white, // Icon color for visibility
+                      ),
+                    ),
                     title: Text(username),
                     subtitle: Text(
                       lastMessage.length > 30
@@ -91,12 +101,12 @@ class _MessagesPageState extends State<MessagesPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              ChatScreen(recipientId: recipientId),
+                          builder: (context) => ChatScreen(recipientId: recipientId),
                         ),
                       );
                     },
                   );
+
                 },
               );
             },
