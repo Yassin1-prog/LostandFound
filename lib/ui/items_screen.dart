@@ -9,15 +9,17 @@ import './components/search_bar.dart';
 import './components/item_card.dart';
 
 class ItemsPage extends StatefulWidget {
-  final String? initialStatus; // Optional parameter to specify lost or found
-  final String? initialCategory; // Optional parameter to specify category
-  final List<Report>? searchResults; // Optional parameter for search results
+  final String? initialStatus;
+  final String? initialCategory;
+  final String? searchTerm;
+  final String? source;
 
   const ItemsPage(
       {super.key,
       this.initialStatus,
       this.initialCategory,
-      this.searchResults});
+      this.searchTerm,
+      this.source});
 
   @override
   State<ItemsPage> createState() => _ItemsPageState();
@@ -29,23 +31,18 @@ class _ItemsPageState extends State<ItemsPage> {
   bool _isLoading = true;
   String? _currentStatus;
   String? _currentCategory;
+  String? _currentSearchTerm;
+  String? _currentSource;
 
   @override
   void initState() {
     super.initState();
     _currentStatus = widget.initialStatus;
     _currentCategory = widget.initialCategory;
+    _currentSearchTerm = widget.searchTerm;
+    _currentSource = widget.source;
 
-    // If search results are provided, use them
-    if (widget.searchResults != null && widget.searchResults!.isNotEmpty) {
-      setState(() {
-        _reports = widget.searchResults!;
-        _isLoading = false;
-      });
-    } else {
-      // Otherwise, fetch reports based on the initial status
-      _fetchReports();
-    }
+    _fetchReports();
   }
 
   Future<void> _fetchReports() async {
@@ -53,32 +50,38 @@ class _ItemsPageState extends State<ItemsPage> {
       _isLoading = true;
     });
 
+    List<Report> filteredReports;
+
     try {
-      List<Report> fetchedReports;
-      final currentUser = firebase_auth.FirebaseAuth.instance.currentUser;
+      if (_currentSource == null) {
+        List<Report> allReports = await _reportService.getReports();
 
-      if (_currentStatus?.toLowerCase() == 'found') {
-        fetchedReports = await _reportService.getFoundReports();
-      } else if (_currentStatus?.toLowerCase() == 'lost') {
-        fetchedReports = await _reportService.getLostReports();
-      } else if (_currentStatus?.toLowerCase() == 'user' &&
-          currentUser != null) {
-        fetchedReports = await _reportService.getReportsByUser(currentUser.uid);
+        filteredReports = allReports.where((report) {
+          bool matchesStatus = _currentStatus == null ||
+              report.status.toLowerCase() == _currentStatus!.toLowerCase();
+
+          bool matchesCategory = _currentCategory == null ||
+              report.category.toLowerCase() == _currentCategory!.toLowerCase();
+
+          bool matchesSearchTerm = _currentSearchTerm == null ||
+              report.itemName
+                  .toLowerCase()
+                  .contains(_currentSearchTerm!.toLowerCase());
+
+          return matchesStatus && matchesCategory && matchesSearchTerm;
+        }).toList();
       } else {
-        fetchedReports = await _reportService.getReports();
-      }
-
-      // Apply additional category filtering if specified
-      if (_currentCategory != null) {
-        fetchedReports = fetchedReports
-            .where((report) =>
-                report.category.toLowerCase() ==
-                _currentCategory!.toLowerCase())
-            .toList();
+        final currentUser = firebase_auth.FirebaseAuth.instance.currentUser;
+        if (currentUser != null) {
+          filteredReports =
+              await _reportService.getReportsByUser(currentUser.uid);
+        } else {
+          filteredReports = await _reportService.getReports();
+        }
       }
 
       setState(() {
-        _reports = fetchedReports;
+        _reports = filteredReports;
         _isLoading = false;
       });
     } catch (e) {
@@ -104,6 +107,7 @@ class _ItemsPageState extends State<ItemsPage> {
       'dateTime': DateFormat('dd/MM/yyyy').format(report.date),
       'imageUrl': report.imageUrl, // Placeholder for image URL
       'userId': report.userId,
+      'reportId': report.id,
     });
   }
 
@@ -116,6 +120,8 @@ class _ItemsPageState extends State<ItemsPage> {
         return '${_currentStatus!.toUpperCase()} Items';
       } else if (_currentCategory != null) {
         return '${_currentCategory!.toUpperCase()} Items';
+      } else if (_currentSource != null) {
+        return 'My reports';
       }
       return 'Related Items';
     }

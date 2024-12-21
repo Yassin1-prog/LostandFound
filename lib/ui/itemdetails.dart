@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/user_service.dart';
 import '../app/app_theme.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import '../services/report_service.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
 class ItemDetails extends StatefulWidget {
   final String itemName;
@@ -12,6 +15,7 @@ class ItemDetails extends StatefulWidget {
   final String dateTime;
   final String imageUrl;
   final String userId;
+  final String reportId;
 
   const ItemDetails({
     super.key,
@@ -23,6 +27,7 @@ class ItemDetails extends StatefulWidget {
     required this.dateTime,
     required this.imageUrl,
     required this.userId,
+    required this.reportId,
   });
 
   @override
@@ -31,7 +36,71 @@ class ItemDetails extends StatefulWidget {
 
 class _ItemDetailsState extends State<ItemDetails> {
   final UserService _userService = UserService();
+  final ReportService _reportService = ReportService();
   bool _isLoading = false;
+  String? currentUserId = firebase_auth.FirebaseAuth.instance.currentUser?.uid;
+
+  Future<void> _showDeleteConfirmation() async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Report'),
+          content: const Text('Are you sure you want to delete this report?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.text,
+              ),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _deleteReport();
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteReport() async {
+    setState(() => _isLoading = true);
+    try {
+      await _reportService.deleteReport(widget.reportId);
+      if (!mounted) return;
+
+      // Navigate to profile page
+      Navigator.of(context)
+          .pushReplacementNamed('/profile'); // Adjust route name as needed
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Report deleted successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error deleting report: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   Future<void> _makePhoneCall() async {
     setState(() => _isLoading = true);
@@ -108,6 +177,89 @@ class _ItemDetailsState extends State<ItemDetails> {
     );
   }
 
+  Widget _buildActionButtons() {
+    if (currentUserId == widget.userId) {
+      // Show delete button for report owner
+      return Center(
+        child: ElevatedButton.icon(
+          onPressed: _isLoading ? null : _showDeleteConfirmation,
+          icon: _isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Icon(Icons.delete),
+          label: Text(_isLoading ? 'Deleting...' : 'Delete Report'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 12,
+            ),
+          ),
+        ),
+      );
+    } else {
+      // Show call and message buttons for other users
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          ElevatedButton.icon(
+            onPressed: _isLoading ? null : _makePhoneCall,
+            icon: _isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Icon(Icons.call),
+            label: Text(_isLoading ? 'Loading...' : 'Call'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.buttonText,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 12,
+              ),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              // Add message functionality
+            },
+            icon: const Icon(Icons.message),
+            label: const Text('Message'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.buttonText,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 12,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -146,28 +298,33 @@ class _ItemDetailsState extends State<ItemDetails> {
                   child: widget.imageUrl.isNotEmpty
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(16),
-                          child: Image.network(
-                            widget.imageUrl,
+                          child: CachedNetworkImage(
+                            imageUrl: widget.imageUrl,
                             fit: BoxFit.cover,
                             width: double.infinity,
+                            placeholder: (context, url) => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
                           ),
                         )
                       : Container(
                           width: double.infinity,
-                          color: Colors.grey[100],
+                          color: AppColors.background,
                           child: const Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
                                 Icons.image_not_supported,
-                                color: Colors.grey,
+                                color: AppColors.primary,
                                 size: 32,
                               ),
                               SizedBox(height: 4),
                               Text(
                                 'No image available',
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: AppColors.primary,
                                   fontSize: 12,
                                 ),
                               ),
@@ -187,55 +344,7 @@ class _ItemDetailsState extends State<ItemDetails> {
 
                 const SizedBox(height: 32),
 
-                // Call and Message Buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: _isLoading ? null : _makePhoneCall,
-                      icon: _isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Icon(Icons.call),
-                      label: Text(_isLoading ? 'Loading...' : 'Call'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.buttonText,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        // Add message functionality
-                      },
-                      icon: const Icon(Icons.message),
-                      label: const Text('Message'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.buttonText,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                _buildActionButtons(),
               ],
             ),
           ),

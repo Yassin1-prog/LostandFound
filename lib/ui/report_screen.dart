@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../app/app_theme.dart';
@@ -91,10 +89,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
 
         // Create a new Report object
         final newReport = Report(
-          id: FirebaseFirestore.instance
-              .collection('Report')
-              .doc()
-              .id, // Pre-generate ID,
+          id: '', // will be set equal to doc id in the report service
           userId: currentUser.uid,
           itemName: itemName!,
           status: lostOrFound!,
@@ -254,7 +249,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                       ),
                     ),
                     value: category,
-                    items: ['Electronics', 'Books', 'Other']
+                    items: ['Electronics', 'Personal', 'Documents', 'Other']
                         .map((label) => DropdownMenuItem(
                               value: label,
                               child: Text(label),

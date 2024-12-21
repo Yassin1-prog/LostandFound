@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../models/report.dart';
 import '../ui/welcome_screen.dart';
 import '../ui/register_screen.dart';
 import '../ui/login_screen.dart';
@@ -36,7 +35,8 @@ class AppRoutes {
             builder: (_) => ItemsPage(
               initialStatus: args['status'] as String?,
               initialCategory: args['category'] as String?,
-              searchResults: args['searchResults'] as List<Report>?,
+              searchTerm: args['searchTerm'] as String?,
+              source: args['source'] as String?,
             ),
           );
         }
@@ -61,6 +61,7 @@ class AppRoutes {
               dateTime: args['dateTime'] ?? '',
               imageUrl: args['imageUrl'] ?? '',
               userId: args['userId'] ?? '',
+              reportId: args['reportId'] ?? '',
             ),
           );
         }
@@ -75,6 +76,7 @@ class AppRoutes {
             dateTime: "",
             imageUrl: "",
             userId: "",
+            reportId: "",
           ),
         );
       case profile:

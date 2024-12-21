@@ -164,14 +164,14 @@ class ItemCard extends StatelessWidget {
           children: [
             Icon(
               Icons.image_not_supported,
-              color: Colors.grey,
+              color: AppColors.primary,
               size: 32,
             ),
             SizedBox(height: 4),
             Text(
               'No image available',
               style: TextStyle(
-                color: Colors.grey,
+                color: AppColors.primary,
                 fontSize: 12,
               ),
             ),

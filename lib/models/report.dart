@@ -66,7 +66,7 @@ class Report {
   factory Report.fromDocument(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return Report(
-      id: data['id'] ?? '',
+      id: doc.id, // Use the document ID directly
       userId: data['userId'] ?? '',
       itemName: data['itemName'] ?? '',
       status: data['status'] ?? 'Lost',

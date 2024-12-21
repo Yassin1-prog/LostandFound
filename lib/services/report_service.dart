@@ -10,7 +10,14 @@ class ReportService {
 
   // Add a new report
   Future<void> addReport(Report report) async {
-    await _firestore.collection('Report').add(report.toMap());
+    // Create a document reference first to get the ID
+    DocumentReference docRef = _firestore.collection('Report').doc();
+
+    // Update the report with the document ID
+    Report updatedReport = report.copyWith(id: docRef.id);
+
+    // Save the report with the matching ID
+    await docRef.set(updatedReport.toMap());
   }
 
   // Delete a report

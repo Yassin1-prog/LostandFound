@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../app/app_theme.dart';
-import '../../services/report_service.dart';
 import '../../models/report.dart';
 
 class MySearchBar extends StatefulWidget {
@@ -14,7 +13,6 @@ class MySearchBar extends StatefulWidget {
 
 class _MySearchBarState extends State<MySearchBar> {
   final TextEditingController _searchController = TextEditingController();
-  final ReportService _reportService = ReportService();
 
   // Filter variables
   String? _selectedStatus;
@@ -68,8 +66,15 @@ class _MySearchBarState extends State<MySearchBar> {
                         setState(() => _selectedCategory = value),
                   ),
                   RadioListTile(
-                    title: const Text('Book'),
-                    value: 'book',
+                    title: const Text('Personal'),
+                    value: 'personal',
+                    groupValue: _selectedCategory,
+                    onChanged: (value) =>
+                        setState(() => _selectedCategory = value),
+                  ),
+                  RadioListTile(
+                    title: const Text('Documents'),
+                    value: 'documents',
                     groupValue: _selectedCategory,
                     onChanged: (value) =>
                         setState(() => _selectedCategory = value),
@@ -110,38 +115,14 @@ class _MySearchBarState extends State<MySearchBar> {
     );
   }
 
-  Future<void> _performSearch() async {
-    try {
-      // Fetch all reports to filter
-      List<Report> allReports = await _reportService.getReports();
-
-      // Apply filters
-      List<Report> filteredReports = allReports.where((report) {
-        bool matchesStatus = _selectedStatus == null ||
-            report.status.toLowerCase() == _selectedStatus!.toLowerCase();
-
-        bool matchesCategory = _selectedCategory == null ||
-            report.category.toLowerCase() == _selectedCategory!.toLowerCase();
-
-        bool matchesSearchTerm = _searchController.text.isEmpty ||
-            report.itemName
-                .toLowerCase()
-                .contains(_searchController.text.toLowerCase());
-
-        return matchesStatus && matchesCategory && matchesSearchTerm;
-      }).toList();
-
-      // Navigate to items screen with filtered results
-      Navigator.pushNamed(context, '/items', arguments: {
-        'searchResults': filteredReports,
-        'status': _selectedStatus,
-        'category': _selectedCategory,
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Search failed: $e')),
-      );
-    }
+  void _performSearch() {
+    // Navigate to items screen with searched terms and filters
+    Navigator.pushNamed(context, '/items', arguments: {
+      'searchTerm':
+          _searchController.text.isEmpty ? null : _searchController.text,
+      'status': _selectedStatus,
+      'category': _selectedCategory,
+    });
   }
 
   @override

@@ -52,26 +52,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   String _getRank(int xp) {
-    if (xp >= 1001) return 'Recovery Legend';
-    if (xp >= 601) return 'Master Returner';
-    if (xp >= 301) return 'Expert Locator';
-    if (xp >= 101) return 'Community Helper';
+    if (xp >= 1000) return 'Recovery Legend';
+    if (xp >= 600) return 'Master Returner';
+    if (xp >= 300) return 'Expert Locator';
+    if (xp >= 100) return 'Community Helper';
     return 'Novice Finder';
   }
 
   int _getMaxXP(int xp) {
-    if (xp >= 1001) return 2000; // Can adjust this cap
-    if (xp >= 601) return 1000;
-    if (xp >= 301) return 600;
-    if (xp >= 101) return 300;
+    if (xp >= 1000) return 2000; // Can adjust this cap
+    if (xp >= 600) return 1000;
+    if (xp >= 300) return 600;
+    if (xp >= 100) return 300;
     return 100;
   }
 
   Color _getRankColor(int xp) {
-    if (xp >= 1001) return const Color(0xFF6C63FF); // Purple
-    if (xp >= 601) return const Color(0xFF4CAF50); // Green
-    if (xp >= 301) return const Color(0xFF2196F3); // Blue
-    if (xp >= 101) return const Color(0xFFFFA726); // Orange
+    if (xp >= 1000) return const Color(0xFF6C63FF); // Purple
+    if (xp >= 600) return const Color(0xFF4CAF50); // Green
+    if (xp >= 300) return const Color(0xFF2196F3); // Blue
+    if (xp >= 100) return const Color(0xFFFFA726); // Orange
     return const Color(0xFF78909C); // Blue Grey
   }
 
@@ -85,6 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       'dateTime': DateFormat('dd/MM/yyyy').format(report.date),
       'imageUrl': report.imageUrl, // Placeholder for image URL
       'userId': report.userId,
+      'reportId': report.id,
     });
   }
 
@@ -382,7 +383,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onViewAll: () {
                     // Navigate to Recently Lost Items screen
                     Navigator.pushNamed(context, '/items',
-                        arguments: {'status': 'user'});
+                        arguments: {'source': 'user'});
                   },
                 ),
                 const SizedBox(height: 24),
