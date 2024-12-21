@@ -475,14 +475,11 @@ Widget _buildSection(BuildContext context,
             color: AppColors.text,
           ),
         ),
-        const SizedBox(width: 8), // Small margin between title and arrow
-        const Text(
-          '>',
-          style: TextStyle(
-            fontSize: 18,
-            color: AppColors.primary,
-            fontWeight: FontWeight.bold,
-          ),
+        const SizedBox(width: 8),
+        const Icon(
+          Icons.arrow_forward_ios, // Material Design arrow icon
+          size: 16, // Slightly smaller than the text for better visual balance
+          color: AppColors.primary,
         ),
       ],
     ),

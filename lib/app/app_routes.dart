@@ -7,6 +7,8 @@ import '../ui/items_screen.dart';
 import '../ui/report_screen.dart';
 import '../ui/itemdetails.dart';
 import '../ui/profile_screen.dart';
+import '../ui/messages.dart';
+import '../ui/chat_screen.dart';
 
 class AppRoutes {
   static const String welcome = '/';
@@ -17,6 +19,8 @@ class AppRoutes {
   static const String report = '/report';
   static const String details = '/itemdetails';
   static const String profile = '/profile';
+  static const String messages = '/messages';
+  static const String chat = '/chat';
 
   static Route<dynamic>? generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -81,6 +85,22 @@ class AppRoutes {
         );
       case profile:
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
+      case messages:
+        return MaterialPageRoute(builder: (_) => const MessagesPage());
+      case chat:
+        if (settings.arguments is Map<String, dynamic>) {
+          final args = settings.arguments as Map<String, dynamic>;
+          return MaterialPageRoute(
+            builder: (_) => ChatScreen(
+              recipientId: args['recipientId'],
+            ),
+          );
+        }
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Page not found')),
+          ),
+        );
       default:
         return MaterialPageRoute(
           builder: (_) => const Scaffold(

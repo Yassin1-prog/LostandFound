@@ -119,13 +119,11 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(width: 8),
-          const Text(
-            '>',
-            style: TextStyle(
-              fontSize: 18,
-              color: AppColors.primary,
-              fontWeight: FontWeight.bold,
-            ),
+          const Icon(
+            Icons.arrow_forward_ios, // Material Design arrow icon
+            size:
+                16, // Slightly smaller than the text for better visual balance
+            color: AppColors.primary,
           ),
         ],
       ),

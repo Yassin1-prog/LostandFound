@@ -5,6 +5,7 @@ import '../app/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../services/report_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import '../ui/chat_screen.dart';
 
 class ItemDetails extends StatefulWidget {
   final String itemName;
@@ -239,7 +240,12 @@ class _ItemDetailsState extends State<ItemDetails> {
           ),
           ElevatedButton.icon(
             onPressed: () {
-              // Add message functionality
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatScreen(recipientId: widget.userId),
+                ),
+              );
             },
             icon: const Icon(Icons.message),
             label: const Text('Message'),

@@ -126,10 +126,10 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Report Form'),
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.primary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+          icon: const Icon(Icons.arrow_back, color: AppColors.buttonText),
           onPressed: () {
             Navigator.pop(context);
           },
