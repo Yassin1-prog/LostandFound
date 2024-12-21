@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../services/report_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import '../ui/chat_screen.dart';
+import 'package:vibration/vibration.dart';
 
 class ItemDetails extends StatefulWidget {
   final String itemName;
@@ -77,7 +78,10 @@ class _ItemDetailsState extends State<ItemDetails> {
     try {
       await _reportService.deleteReport(widget.reportId);
       if (!mounted) return;
-
+      if (await Vibration.hasVibrator() ?? false) {
+        Vibration.vibrate(pattern: [0, 50, 50, 50]); // Two quick pulses
+        // Pattern explanation: [wait 0ms, vibrate 50ms, wait 50ms, vibrate 50ms]
+      }
       // Navigate to profile page
       Navigator.of(context)
           .pushReplacementNamed('/profile'); // Adjust route name as needed

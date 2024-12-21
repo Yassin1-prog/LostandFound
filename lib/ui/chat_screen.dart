@@ -6,7 +6,7 @@ import '../app/app_theme.dart';
 class ChatScreen extends StatefulWidget {
   final String recipientId;
 
-  const ChatScreen({Key? key, required this.recipientId}) : super(key: key);
+  const ChatScreen({super.key, required this.recipientId});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -29,7 +29,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _fetchRecipientData() async {
     try {
-      final userDoc = await _firestore.collection('User').doc(widget.recipientId).get();
+      final userDoc =
+          await _firestore.collection('User').doc(widget.recipientId).get();
       if (userDoc.exists) {
         setState(() {
           recipientUsername = userDoc.data()?['username'] ?? 'Unknown';
@@ -112,10 +113,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 color: Colors.white, // Icon color
               ),
             ),
-            const SizedBox(width: 14), // Reduced spacing between the icon and text
+            const SizedBox(
+                width: 14), // Reduced spacing between the icon and text
             Expanded(
               child: Align(
-                alignment: Alignment.centerLeft, // Aligns the username to the left
+                alignment:
+                    Alignment.centerLeft, // Aligns the username to the left
                 child: Text(
                   recipientUsername ?? 'Loading...',
                   style: const TextStyle(color: Colors.white),
@@ -124,9 +127,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ],
         ),
-
       ),
-
       body: Column(
         children: [
           Expanded(
@@ -163,7 +164,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             isMe ? Alignment.centerRight : Alignment.centerLeft,
                         child: Container(
                           constraints: BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.width * 0.6),
+                              maxWidth:
+                                  MediaQuery.of(context).size.width * 0.6),
                           margin: const EdgeInsets.symmetric(
                               vertical: 4, horizontal: 8),
                           padding: const EdgeInsets.all(12),
@@ -211,7 +213,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         border: InputBorder.none,
                         counterText: '', // Hides the character counter
                       ),
-                      style: TextStyle(color: AppColors.text),
+                      style: const TextStyle(color: AppColors.text),
                     ),
                   ),
                 ),

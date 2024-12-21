@@ -5,7 +5,7 @@ import '../app/app_theme.dart';
 import 'chat_screen.dart';
 
 class MessagesPage extends StatefulWidget {
-  const MessagesPage({Key? key}) : super(key: key);
+  const MessagesPage({super.key});
 
   @override
   State<MessagesPage> createState() => _MessagesPageState();
@@ -63,7 +63,8 @@ class _MessagesPageState extends State<MessagesPage> {
             itemBuilder: (context, index) {
               final conversation = conversations[index];
               final participants = conversation['participants'] as List;
-              final lastMessage = conversation['lastMessage'] ?? 'No messages yet';
+              final lastMessage =
+                  conversation['lastMessage'] ?? 'No messages yet';
               final recipientId = participants.firstWhere(
                 (id) => id != currentUser.uid,
                 orElse: () => null,
@@ -83,7 +84,8 @@ class _MessagesPageState extends State<MessagesPage> {
                       width: 40,
                       height: 40,
                       decoration: const BoxDecoration(
-                        color: AppColors.accent, // Contrasting color for the circle
+                        color: AppColors
+                            .accent, // Contrasting color for the circle
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -101,12 +103,12 @@ class _MessagesPageState extends State<MessagesPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ChatScreen(recipientId: recipientId),
+                          builder: (context) =>
+                              ChatScreen(recipientId: recipientId),
                         ),
                       );
                     },
                   );
-
                 },
               );
             },
