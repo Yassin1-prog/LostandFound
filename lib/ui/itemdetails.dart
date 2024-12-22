@@ -79,7 +79,7 @@ class _ItemDetailsState extends State<ItemDetails> {
       await _reportService.deleteReport(widget.reportId);
       if (!mounted) return;
       if (await Vibration.hasVibrator() ?? false) {
-        Vibration.vibrate(pattern: [0, 50, 50, 50]); // Two quick pulses
+        Vibration.vibrate(pattern: [0, 100, 50, 100]); // Two quick pulses
         // Pattern explanation: [wait 0ms, vibrate 50ms, wait 50ms, vibrate 50ms]
       }
       // Navigate to profile page

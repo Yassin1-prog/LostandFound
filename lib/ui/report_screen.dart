@@ -116,7 +116,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
         if (newRank.minXP > oldRank.minXP) {
           if (await Vibration.hasVibrator() ?? false) {
             Vibration.vibrate(
-                duration: 300, amplitude: 255); // Max intensity for 300ms
+                duration: 800, amplitude: 255); // Max intensity for 300ms
           }
           // Show rank up dialog
           if (mounted) {
@@ -126,12 +126,14 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
-                title: const Text('Congratulations! 🎉',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    )),
+                title: const Text(
+                  'Congratulations! 🎉',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -141,7 +143,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                       style: TextStyle(fontSize: 16),
                     ),
                     const SizedBox(height: 20),
-                    Row(
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
@@ -166,9 +168,9 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
                           child: Icon(
-                            Icons.arrow_forward,
+                            Icons.arrow_downward,
                             color: newRank.color,
                           ),
                         ),
@@ -201,7 +203,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                   TextButton(
                     onPressed: () {
                       Navigator.of(ctx).pop();
-                      Navigator.pop(context); // Return to previous screen
+                      Navigator.pop(context);
                     },
                     child: const Text('Continue'),
                   ),
@@ -211,7 +213,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
           }
         } else {
           if (await Vibration.hasVibrator() ?? false) {
-            Vibration.vibrate(pattern: [0, 50, 50, 50]); // Two quick pulses
+            Vibration.vibrate(pattern: [0, 100, 50, 100]); // Two quick pulses
             // Pattern explanation: [wait 0ms, vibrate 50ms, wait 50ms, vibrate 50ms]
           }
           // If no rank up, just show success message and return
