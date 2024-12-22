@@ -203,7 +203,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                   TextButton(
                     onPressed: () {
                       Navigator.of(ctx).pop();
-                      Navigator.pop(context);
+                      Navigator.of(context).pushReplacementNamed('/profile');
                     },
                     child: const Text('Continue'),
                   ),
@@ -314,7 +314,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                   // Lost/Found Dropdown
                   DropdownButtonFormField<String>(
                     decoration: InputDecoration(
-                      labelText: 'Lost/Found',
+                      labelText: 'Status',
                       filled: true,
                       fillColor: AppColors.background,
                       border: OutlineInputBorder(

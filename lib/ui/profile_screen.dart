@@ -376,7 +376,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     });
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 _buildSection(
                   context,
                   title: 'My Reports',
@@ -386,7 +386,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         arguments: {'source': 'user'});
                   },
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 _buildRow(_myReports),
               ],
             ),

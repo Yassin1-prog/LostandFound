@@ -39,7 +39,7 @@ class ItemCard extends StatelessWidget {
                 child: imageUrl.isNotEmpty
                     ? CachedNetworkImage(
                         imageUrl: imageUrl,
-                        height: 140, // Increased height
+                        height: 155, // Increased height
                         width: double.infinity,
                         fit: BoxFit.cover,
                         httpHeaders: const {
@@ -155,7 +155,7 @@ class ItemCard extends StatelessWidget {
 
   Widget _buildNoImageWidget() {
     return SizedBox(
-      height: 140,
+      height: 155,
       width: double.infinity,
       child: Container(
         color: Colors.grey[100],

@@ -293,7 +293,7 @@ class _ItemDetailsState extends State<ItemDetails> {
               children: [
                 // Image Section
                 Container(
-                  height: 200,
+                  height: 250,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     color: AppColors.background2,
@@ -346,11 +346,11 @@ class _ItemDetailsState extends State<ItemDetails> {
 
                 // Item Details
                 _buildDetailRow('Item Name', widget.itemName),
-                _buildDetailRow('Lost/Found', widget.status),
+                _buildDetailRow('Status', widget.status),
                 _buildDetailRow('Description', widget.description),
                 _buildDetailRow('Category', widget.category),
                 _buildDetailRow('Location', widget.location),
-                _buildDetailRow('Date and Time', widget.dateTime),
+                _buildDetailRow('Date', widget.dateTime),
 
                 const SizedBox(height: 32),
 
