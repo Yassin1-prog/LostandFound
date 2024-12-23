@@ -223,7 +223,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.pop(context);
+          Navigator.of(context).pushReplacementNamed('/profile');
         }
       } catch (e) {
         _showErrorDialog('Failed to submit report: ${e.toString()}');
