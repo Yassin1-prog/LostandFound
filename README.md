@@ -1,6 +1,6 @@
 # 📱 Lost and Found App
 
-Welcome to the **Lost and Found** app! This Flutter-based Android app helps users report and find lost or found items seamlessly. It uses firebase as its database as well as appwrite exclusively for for image storing.
+Welcome to the **Lost and Found** app! This Flutter-based Android app helps users report and find lost or found items seamlessly. It uses **firebase** as its database as well as **appwrite** exclusively for for image storing.
 
 ---
 
@@ -17,14 +17,14 @@ Welcome to the **Lost and Found** app! This Flutter-based Android app helps user
 Below are some screenshots showcasing the app's features:
 
 <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+  <img src="screenshots\1734991062670.jpg" alt="Details Screen" width="200" />
   <img src="screenshots\1734991062614.jpg" alt="Home Screen" width="200" />
+  <img src="screenshots\1734991062660.jpg" alt="Item List Screen" width="200" />
   <img src="screenshots\1734991062618.jpg" alt="Report Item Screen" width="200" />
-  <img src="screenshots\1734991062626.jpg" alt="Item List Screen" width="200" />
   <img src="screenshots\1734991062633.jpg" alt="Details Screen" width="200" />
   <img src="screenshots\1734991062640.jpg" alt="Home Screen" width="200" />
   <img src="screenshots\1734991062649.jpg" alt="Report Item Screen" width="200" />
-  <img src="screenshots\1734991062660.jpg" alt="Item List Screen" width="200" />
-  <img src="screenshots\1734991062670.jpg" alt="Details Screen" width="200" />
+  <img src="screenshots\1734991062626.jpg" alt="Item List Screen" width="200" />
 </div>
 
 ---
